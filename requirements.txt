@@ -1,4 +1,6 @@
 streamlit
 edge-tts
 pypdf
-
+pdf2image
+pytesseract
+Pillow
