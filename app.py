@@ -5,8 +5,6 @@ import pytesseract
 from pdf2image import convert_from_bytes
 from pypdf import PdfReader
 from deep_translator import GoogleTranslator
-from pydub import AudioSegment
-import io
 
 st.set_page_config(
     page_title="Chapter Voice App",
@@ -38,7 +36,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.title("📖 Chapter → Voice")
-st.caption("Koi bhi language → Translate → Voice + Music + AI Assistant")
+st.caption("Koi bhi language → Translate → Voice + AI Assistant")
 
 # ---------- SIDEBAR ----------
 with st.sidebar:
@@ -77,15 +75,6 @@ with st.sidebar:
 
     rate = st.slider("Speed", -40, 40, 0, 5)
     pitch = st.slider("Pitch", -50, 50, 0, 5)
-
-    st.markdown("---")
-    st.subheader("🎵 Background Music")
-    add_music = st.checkbox("Background Music Add Karo")
-    music_file = None
-    music_volume = -15
-    if add_music:
-        music_file = st.file_uploader("Music file upload karo (MP3)", type=["mp3", "wav"])
-        music_volume = st.slider("Music Volume", -30, 0, -15)
 
 # ---------- INPUT ----------
 input_mode = st.radio("Input Type:", ["📄 PDF Upload", "✍️ Direct Text Paste"], horizontal=True)
@@ -171,22 +160,6 @@ if full_text.strip():
                     return audio
 
                 audio_bytes = asyncio.run(generate())
-
-                if add_music and music_file:
-                    voice_audio = AudioSegment.from_file(io.BytesIO(audio_bytes), format="mp3")
-                    bg_music = AudioSegment.from_file(music_file)
-                    bg_music = bg_music + music_volume
-                    
-                    if len(bg_music) < len(voice_audio):
-                        times = (len(voice_audio) // len(bg_music)) + 1
-                        bg_music = bg_music * times
-                    bg_music = bg_music[:len(voice_audio)]
-                    
-                    final_audio = voice_audio.overlay(bg_music)
-                    buffer = io.BytesIO()
-                    final_audio.export(buffer, format="mp3")
-                    audio_bytes = buffer.getvalue()
-
                 st.audio(audio_bytes, format="audio/mp3")
 
                 filename = "voice_output.mp3"
@@ -204,7 +177,7 @@ st.subheader("🤖 Chhota AI Assistant")
 
 st.info("Yeh chhota AI aapko naye options aur ideas de sakta hai.")
 
-ai_question = st.text_input("AI se kuch poocho (jaise: nayi language add karo, nayi voice chahiye, feature suggest karo)")
+ai_question = st.text_input("AI se kuch poocho (jaise: nayi language, nayi voice, feature suggest karo)")
 
 if st.button("AI se Jawab Lo"):
     question = ai_question.lower().strip()
@@ -212,19 +185,12 @@ if st.button("AI se Jawab Lo"):
     if any(word in question for word in ["language", "bhasha", "lang"]):
         st.success("""
 **AI Suggestion - Nayi Languages:**
-- Bengali (bn)
-- Tamil (ta)
-- Telugu (te)
-- Marathi (mr)
-- Gujarati (gu)
-- Malayalam (ml)
-- Kannada (kn)
-- Punjabi (pa)
+- Bengali, Tamil, Telugu, Marathi, Gujarati, Malayalam, Kannada, Punjabi
 
-Aap chaho to main inhe code me add kar sakta hoon.
+Bolo kaunsi add karni hai?
         """)
     
-    elif any(word in question for word in ["voice", "awaz", "voice"]):
+    elif any(word in question for word in ["voice", "awaz"]):
         st.success("""
 **AI Suggestion - Nayi Voices:**
 - Hindi Female (Ananya)
@@ -232,44 +198,32 @@ Aap chaho to main inhe code me add kar sakta hoon.
 - Spanish Female
 - French Female
 - Japanese Male
-- Chinese Female
 
-Bolo kaunsi voice add karni hai?
+Kaunsi voice chahiye?
         """)
     
     elif any(word in question for word in ["feature", "option", "add", "naya"]):
         st.success("""
-**AI Suggestion - Naye Features jo add ho sakte hain:**
-1. Multiple characters ke liye alag-alag voice
-2. Emotional voice (khush, gussa, udaas)
+**AI Suggestion - Naye Features:**
+1. Multiple characters ke liye alag voice
+2. Emotional voice
 3. Auto chapter split
-4. Voice + Subtitle download
-5. Text-to-Image (character ka photo)
-6. Slow mode for learning
+4. Subtitle download
+5. Slow mode for learning
 
-Kaunsa feature add karna hai batao!
+Kaunsa feature add karna hai?
         """)
     
     elif question:
-        st.success("""
-**AI Reply:**
-Samajh gaya! Aap mujhe clearly batao:
-- Nayi language chahiye?
-- Nayi voice chahiye?
-- Naya feature chahiye?
-
-Main uske hisaab se help karunga.
-        """)
+        st.success("Samajh gaya! Clear batao kya chahiye: nayi language, voice, ya feature?")
     else:
-        st.warning("Pehle kuch likho phir button dabao.")
+        st.warning("Pehle kuch likho.")
 
 # ---------- EDITING TOOLS ----------
 st.markdown("---")
 st.subheader("🛠️ Manga / Comic Editing Tools")
 
 st.markdown("""
-Agar Manga/Comic edit karni ho to yeh free tools use karo:
-
 | Tool | Best For | Link |
 |------|----------|------|
 | **Photopea** | Online Photoshop | [photopea.com](https://www.photopea.com) |
