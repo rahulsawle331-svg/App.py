@@ -4,3 +4,5 @@ pypdf
 pdf2image
 pytesseract
 Pillow
+deep-translator
+pydub
